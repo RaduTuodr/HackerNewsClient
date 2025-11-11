@@ -82,15 +82,32 @@ defaultConfig =
 
 {-| A type that describes what option changed and how
 -}
-type Change
-    = ChangeTODO
+type Field
+    = PostsToFetch
+    | PostsToShow
+    | SortByField
+    | ShowJobs
+    | ShowTextOnly
+type Value
+    = IntValue Int
+    | BoolValue Bool
+    | SortValue SortBy
+type Change = Change Field Value
 
 
 {-| Given a change and the current configuration, return a new configuration with the changes applied
 -}
 applyChanges : Change -> PostsConfig -> PostsConfig
-applyChanges _ _ =
-    Debug.todo "applyChanges"
+applyChanges change postsConfig =
+    case change of
+        Change field value ->
+            case (field, value) of
+                (PostsToFetch, IntValue n) -> { postsConfig | postsToFetch = n }
+                (PostsToShow, IntValue n) -> { postsConfig | postsToShow = n }
+                (ShowJobs, BoolValue b) -> { postsConfig | showJobs = b }
+                (ShowTextOnly, BoolValue b) -> { postsConfig | showTextOnly = b }
+                (SortByField, SortValue s) -> { postsConfig | sortBy = s }
+                _ -> postsConfig
 
 
 {-| Given the configuration and a list of posts, return the relevant subset of posts according to the configuration

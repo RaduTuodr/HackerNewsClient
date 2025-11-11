@@ -52,7 +52,14 @@ postTable postsConfig timePosix posts =
                         Html.td [class "post-score"] [Html.text (String.fromInt post.score)],
                         Html.td [class "post-title"] [Html.text post.title],
                         Html.td [class "post-type"] [Html.text post.type_],
-                        Html.td [class "post-time"] [Html.text (Util.Time.formatTime Time.utc post.time)],
+                        Html.td [class "post-time"]
+                        [ Html.text
+                            ( Util.Time.formatTime Time.utc post.time
+                            ++ " ("
+                            ++ (Maybe.withDefault "Just now" (Maybe.map Util.Time.formatDuration (Util.Time.durationBetween post.time timePosix)))
+                            ++ ")"
+                            )
+                        ],
                         Html.td [class "post-url"]  [Html.text (Maybe.withDefault "" post.url)]
                     ]
                 ) posts
