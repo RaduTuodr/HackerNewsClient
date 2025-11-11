@@ -8,7 +8,7 @@ import Html.Attributes exposing (href, type_)
 import Model exposing (AppState(..), Config, LoadingPostsState, Mode(..), Model, Msg(..))
 import Model.Post as Post
 import Model.PostIds as PostIds exposing (HackerNewsItem(..))
-import Model.PostsConfig
+import Model.PostsConfig as PC
 import View.Posts exposing (postTable, postsConfigView)
 
 
@@ -145,11 +145,10 @@ update msg model =
                                     )
 
                         Err err ->
-                            ( Model.FailedToLoad err, Effect.NoEffect )
+                            ( Debug.log "Post decoding failed" (Model.FailedToLoad err), Effect.NoEffect )
 
                 ( Model.LoadedPosts state, ConfigChanged change ) ->
-                    -- ( Model.LoadedPosts state, Effect.NoEffect )
-                    ( Debug.todo "update the config in the update function", Effect.NoEffect )
+                    (Model.LoadedPosts { state | config = (PC.applyChanges change state.config) }, Effect.NoEffect )
 
                 ( state, _ ) ->
                     ( state, Effect.NoEffect )
