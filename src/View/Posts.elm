@@ -60,7 +60,7 @@ postTable postsConfig timePosix posts =
                             ++ ")"
                             )
                         ],
-                        Html.td [class "post-url"]  [Html.text (Maybe.withDefault "" post.url)]
+                        Html.td [class "post-url"]  [ Html.a [href (Maybe.withDefault "" post.url), Html.Attributes.target "_blank"] [Html.text (Maybe.withDefault "" post.url)]]
                     ]
                 ) posts
             )
@@ -99,41 +99,14 @@ postsConfigView postsConfig =
             Html.option [] [Html.text "Date posted"],
             Html.option [] [Html.text "Unsorted"]
         ],
+        Html.text "Show job posts",
         Html.input [Html.Attributes.type_ "checkbox",
         Html.Attributes.name "Show job posts",
         Html.Attributes.checked True,
         id "checkbox-show-job-posts"] [],
+        Html.text "Show text only posts",
         Html.input [Html.Attributes.type_ "checkbox",
         Html.Attributes.name "Show text only",
         Html.Attributes.checked True,
         id "checkbox-show-text-only-posts"] []
     ]
-
---postsConfigView : PostsConfig -> Html Msg
---postsConfigView postsConfig =
---    div []
---    [
---        Html.select [id "select-posts-per-page" Html.Events.onInput ChangedPostsPerPage]
---        [
---            Html.option [ Html.Attributes.value "10" ] [Html.text "10"],
---            Html.option [ Html.Attributes.value "25" ] [Html.text "25"],
---            Html.option [ Html.Attributes.value "50" ] [Html.text "50"]
---        ],
---        Html.select [id "select-sort-by" Html.Events.onInput ChangedSortBy]
---        [
---            Html.option [] [Html.text "Score"],
---            Html.option [] [Html.text "Title"],
---            Html.option [] [Html.text "Date posted"],
---            Html.option [] [Html.text "Unsorted"]
---        ],
---        Html.input [Html.Attributes.type_ "checkbox",
---        Html.Attributes.name "Show job posts",
---        Html.Attributes.checked True,
---        id "checkbox-show-job-posts",
---        Html.Events.onCheck CheckedShowJobs] [],
---        Html.input [Html.Attributes.type_ "checkbox",
---        Html.Attributes.name "Show text only",
---        Html.Attributes.checked True,
---        id "checkbox-show-text-only-posts",
---        Html.Events.onCheck CheckedTextOnly] []
---    ]
