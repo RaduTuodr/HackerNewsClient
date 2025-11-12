@@ -1,4 +1,4 @@
-module Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), applyChanges, defaultConfig, filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString)
+module Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), applyChanges, defaultConfig, filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString, Field(..), Value(..))
 
 import Html.Attributes exposing (scope)
 import Model.Post exposing (Post)
@@ -47,6 +47,7 @@ sortFromString str =
     case str of
         "Score" -> Just Score
         "Title" -> Just Title
+        "Posted" -> Just Posted
         _ -> Nothing
 
 
@@ -125,7 +126,7 @@ Relevant library functions:
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =
     posts
-    |> List.filter (\post -> not config.showTextOnly || post.type_ == "text")
-    |> List.filter (\post -> config.showJobs || post.type_ /= "jobs")
+    |> List.filter (\post -> not config.showTextOnly || post.url == Nothing)
+    |> List.filter (\post -> config.showJobs || post.type_ /= "job")
     |> List.sortWith (sortToCompareFn config.sortBy)
     |> List.take config.postsToShow

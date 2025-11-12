@@ -80,7 +80,7 @@ If the cursor would go past the last element, the function should return `Nothin
 forward : Cursor a -> Maybe (Cursor a)
 forward cursor =
     case cursor of
-        Cursor left middle (first::right) -> Just (withSelectedElement (middle::left) first right)
+        Cursor left middle (first::right) -> Just (withSelectedElement (List.reverse (middle::left)) first right)
         Cursor left middle [] -> Nothing
 
 

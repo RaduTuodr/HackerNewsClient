@@ -5,7 +5,7 @@ import Html.Attributes exposing (href)
 import Html.Events
 import Model exposing (Msg(..))
 import Model.Post exposing (Post)
-import Model.PostsConfig exposing (Change(..), PostsConfig, SortBy(..), filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString)
+import Model.PostsConfig as PC exposing (Change(..), PostsConfig, SortBy(..), filterPosts, sortFromString, sortOptions, sortToCompareFn, sortToString, Field(..), Value(..))
 import Time
 import Util.Time
 import Html.Attributes exposing (class)
@@ -31,41 +31,50 @@ Relevant library functions:
 -}
 postTable : PostsConfig -> Time.Posix -> List Post -> Html Msg
 postTable postsConfig timePosix posts =
-    div []
-    [
-        Html.table []
-        [
-            Html.thead []
-            [
-                Html.tr []
-                [
-                    Html.th [] [Html.text "Score"],
-                    Html.th [] [Html.text "Title"],
-                    Html.th [] [Html.text "Type"],
-                    Html.th [] [Html.text "Posted date"],
-                    Html.th [] [Html.text "Link"]
-                ]
-            ],
-            Html.tbody [] (
-                List.map (
-                    \post -> Html.tr [] [
-                        Html.td [class "post-score"] [Html.text (String.fromInt post.score)],
-                        Html.td [class "post-title"] [Html.text post.title],
-                        Html.td [class "post-type"] [Html.text post.type_],
-                        Html.td [class "post-time"]
-                        [ Html.text
-                            ( Util.Time.formatTime Time.utc post.time
-                            ++ " ("
-                            ++ (Maybe.withDefault "Just now" (Maybe.map Util.Time.formatDuration (Util.Time.durationBetween post.time timePosix)))
-                            ++ ")"
-                            )
-                        ],
-                        Html.td [class "post-url"]  [ Html.a [href (Maybe.withDefault "" post.url), Html.Attributes.target "_blank"] [Html.text (Maybe.withDefault "" post.url)]]
-                    ]
-                ) posts
+    Html.div []
+        [Html.table []
+            [Html.thead []
+              [Html.tr []
+                  [ Html.th [] [ Html.text "Score" ]
+                  , Html.th [] [ Html.text "Title" ]
+                  , Html.th [] [ Html.text "Type" ]
+                  , Html.th [] [ Html.text "Posted date" ]
+                  , Html.th [] [ Html.text "Link" ]
+                  ]
+              ],
+            Html.tbody []
+            (List.map
+                (\post ->
+                    Html.tr []
+                        [ Html.td [ class "post-score" ] [ Html.text (String.fromInt post.score) ]
+                        , Html.td [ class "post-title" ] [ Html.text post.title ]
+                        , Html.td [ class "post-type" ] [ Html.text post.type_ ]
+                        , Html.td [ class "post-time" ]
+                            [Html.text
+                                ( Util.Time.formatTime Time.utc post.time
+                                    ++ " ("
+                                    ++ (Maybe.withDefault "Just now"
+                                        (Maybe.map
+                                            Util.Time.formatDuration
+                                            (Util.Time.durationBetween post.time timePosix)
+                                        )
+                                       )
+                                    ++ ")"
+                                )
+                            ]
+                        , Html.td [ class "post-url" ]
+                            [ Html.a
+                                [ Html.Attributes.href (Maybe.withDefault "" post.url)
+                                , Html.Attributes.target "_blank"
+                                ]
+                                [ Html.text (Maybe.withDefault "" post.url) ]
+                            ]
+                        ]
+                )
+                (PC.filterPosts postsConfig posts)
             )
+            ]
         ]
-    ]
 
 
 {-| Show the configuration options for the posts table
@@ -86,27 +95,44 @@ postsConfigView : PostsConfig -> Html Msg
 postsConfigView postsConfig =
     div []
     [
-        Html.select [id "select-posts-per-page"]
+        Html.label [] [ Html.text "Posts per page: " ],
+        Html.select
+        [id "select-posts-per-page",
+         Html.Events.onInput (\value -> ConfigChanged (Change PostsToShow (IntValue (String.toInt value |> Maybe.withDefault postsConfig.postsToShow))))
+        ]
         [
-            Html.option [] [Html.text "10"],
-            Html.option [] [Html.text "25"],
-            Html.option [] [Html.text "50"]
+            Html.option [ Html.Attributes.value "10" ] [Html.text "10"],
+            Html.option [ Html.Attributes.value "25" ] [Html.text "25"],
+            Html.option [ Html.Attributes.value "50" ] [Html.text "50"]
         ],
-        Html.select [id "select-sort-by"]
+        Html.select
+        [id "select-sort-by",
+         Html.Events.onInput (\value -> ConfigChanged (Change SortByField (SortValue (PC.sortFromString value |> Maybe.withDefault postsConfig.sortBy))))
+        ]
         [
+            Html.option [] [Html.text "None"],
             Html.option [] [Html.text "Score"],
             Html.option [] [Html.text "Title"],
-            Html.option [] [Html.text "Date posted"],
-            Html.option [] [Html.text "Unsorted"]
+            Html.option [] [Html.text "Posted"]
         ],
-        Html.text "Show job posts",
-        Html.input [Html.Attributes.type_ "checkbox",
-        Html.Attributes.name "Show job posts",
-        Html.Attributes.checked True,
-        id "checkbox-show-job-posts"] [],
-        Html.text "Show text only posts",
-        Html.input [Html.Attributes.type_ "checkbox",
-        Html.Attributes.name "Show text only",
-        Html.Attributes.checked True,
-        id "checkbox-show-text-only-posts"] []
+        Html.label []
+            [ Html.input
+                [ Html.Attributes.type_ "checkbox"
+                , Html.Attributes.checked postsConfig.showJobs
+                , Html.Attributes.id "checkbox-show-job-posts"
+                , Html.Events.onCheck (\value -> ConfigChanged (Change ShowJobs (BoolValue value)))
+                ]
+                []
+            , Html.text " Show job posts"
+            ],
+        Html.label []
+            [ Html.input
+                [ Html.Attributes.type_ "checkbox"
+                , Html.Attributes.checked postsConfig.showTextOnly
+                , Html.Attributes.id "checkbox-show-text-only-posts"
+                , Html.Events.onCheck (\value -> ConfigChanged (Change ShowTextOnly (BoolValue value)))
+                ]
+                []
+            , Html.text " Show text only posts"
+            ]
     ]
