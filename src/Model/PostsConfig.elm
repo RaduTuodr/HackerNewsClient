@@ -78,7 +78,7 @@ type alias PostsConfig =
 
 defaultConfig : PostsConfig
 defaultConfig =
-    PostsConfig 50 10 None False True
+    PostsConfig 50 10 None False False
 
 
 {-| A type that describes what option changed and how

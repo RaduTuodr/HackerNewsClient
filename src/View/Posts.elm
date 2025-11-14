@@ -95,25 +95,27 @@ postsConfigView : PostsConfig -> Html Msg
 postsConfigView postsConfig =
     div []
     [
-        Html.label [] [ Html.text "Posts per page: " ],
+        Html.label [] [ Html.text "Posts to show: " ],
         Html.select
         [id "select-posts-per-page",
+         Html.Attributes.name "Posts to show",
          Html.Events.onInput (\value -> ConfigChanged (Change PostsToShow (IntValue (String.toInt value |> Maybe.withDefault postsConfig.postsToShow))))
         ]
         [
-            Html.option [ Html.Attributes.value "10" ] [Html.text "10"],
-            Html.option [ Html.Attributes.value "25" ] [Html.text "25"],
-            Html.option [ Html.Attributes.value "50" ] [Html.text "50"]
+            Html.option [ Html.Attributes.value "10", Html.Attributes.selected True ] [Html.text "10"],
+            Html.option [ Html.Attributes.value "25", Html.Attributes.selected False ] [Html.text "25"],
+            Html.option [ Html.Attributes.value "50", Html.Attributes.selected False ] [Html.text "50"]
         ],
         Html.select
         [id "select-sort-by",
+         Html.Attributes.name "Sort by",
          Html.Events.onInput (\value -> ConfigChanged (Change SortByField (SortValue (PC.sortFromString value |> Maybe.withDefault postsConfig.sortBy))))
         ]
         [
-            Html.option [] [Html.text "None"],
-            Html.option [] [Html.text "Score"],
-            Html.option [] [Html.text "Title"],
-            Html.option [] [Html.text "Posted"]
+            Html.option [ Html.Attributes.selected True, Html.Attributes.value "None" ] [Html.text "None"],
+            Html.option [ Html.Attributes.value "Score" ] [Html.text "Score"],
+            Html.option [ Html.Attributes.value "Title" ] [Html.text "Title"],
+            Html.option [ Html.Attributes.value "Posted" ] [Html.text "Posted"]
         ],
         Html.label []
             [ Html.input
