@@ -45,9 +45,9 @@ suite =
                 \_ ->
                     checkConfigChangeEffect
                         [ S.tag "input", S.attribute (Html.Attributes.type_ "checkbox"), S.id "checkbox-show-text-only-posts" ]
-                        (Evt.check True)
-                        (Q.has [ S.checked False ])
+                        (Evt.check False)
                         (Q.has [ S.checked True ])
+                        (Q.has [ S.checked False ])
             , test "The ConfigChange message is sent when the \"Posts to show\" select is changed" <|
                 \_ ->
                     checkConfigChangeEffect

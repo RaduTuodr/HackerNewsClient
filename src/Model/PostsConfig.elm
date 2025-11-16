@@ -78,7 +78,7 @@ type alias PostsConfig =
 
 defaultConfig : PostsConfig
 defaultConfig =
-    PostsConfig 50 10 None False False
+    PostsConfig 50 10 None False True
 
 
 {-| A type that describes what option changed and how
@@ -126,7 +126,7 @@ Relevant library functions:
 filterPosts : PostsConfig -> List Post -> List Post
 filterPosts config posts =
     posts
-    |> List.filter (\post -> not config.showTextOnly || post.url == Nothing)
+    |> List.filter (\post -> config.showTextOnly || post.url /= Nothing)
     |> List.filter (\post -> config.showJobs || post.type_ /= "job")
-    |> List.sortWith (sortToCompareFn config.sortBy)
     |> List.take config.postsToShow
+    |> List.sortWith (sortToCompareFn config.sortBy)

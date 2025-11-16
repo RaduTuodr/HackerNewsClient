@@ -33,7 +33,7 @@ suite =
             [ test "job posts are removed when showJobs is False" <|
                 \_ ->
                     Data.posts
-                        |> Config.filterPosts (Config.PostsConfig 50 50 Config.None False False)
+                        |> Config.filterPosts (Config.PostsConfig 50 50 Config.None False True)
                         |> TestUtils.expectEach (\e -> e.type_ /= "job" |> Expect.equal True |> Expect.onFail ("Found post where the type_ field is \"job\": " ++ Debug.toString e))
             ]
         , describe "postsToShow"
@@ -41,25 +41,24 @@ suite =
                 \_ ->
                     Data.posts
                         |> Config.filterPosts (Config.PostsConfig 50 10 Config.None True True)
-                        |> List.length
-                        |> Expect.atMost 10
+                        |> Expect.equalLists (List.take 10 Data.posts)
             ]
         , describe "sortBy"
             [ test "The final list is not sorted when sortBy is None" <|
                 \_ ->
                     Data.posts
-                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.None True False)
+                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.None True True)
                         |> Expect.equalLists (List.take 10 Data.posts)
             , test "The final list is sorted by title when sortBy is Title" <|
                 \_ ->
                     Data.posts
-                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.Title True False)
-                        |> Expect.equalLists (Data.posts |> List.sortBy .title |> List.take 10)
+                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.Title True True)
+                        |> Expect.equalLists (Data.posts |> List.take 10 |> List.sortBy .title)
             , test "The final list is sorted descending by score when sortBy is Score" <|
                 \_ ->
                     Data.posts
-                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.Score True False)
-                        |> Expect.equalLists (Data.posts |> List.sortBy .score |> List.reverse |> List.take 10)
+                        |> Config.filterPosts (Config.PostsConfig 50 10 Config.Score True True)
+                        |> Expect.equalLists (Data.posts |> List.take 10 |> List.sortBy .score |> List.reverse)
             ]
         , describe "applyChanges"
             [ test "The ConfigChange message is sent when the \"Show job posts\" checkbox is clicked" <|
