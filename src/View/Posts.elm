@@ -36,76 +36,74 @@ postTable postsConfig timePosix posts =
         , Html.Attributes.style "background" "#f5f7fa"
         , Html.Attributes.style "border-radius" "8px"
         ]
-        [ Html.table
+        [Html.table
             [ Html.Attributes.style "width" "100%"
             , Html.Attributes.style "border-collapse" "collapse"
             , Html.Attributes.style "font-family" "sans-serif"
             , Html.Attributes.style "margin-top" "10px"
             ]
-            [ Html.thead
-                [ Html.Attributes.style "background" "#d9e2ec" ]
-                [ Html.tr []
-                    [ th "Score"
-                    , th "Title"
-                    , th "Type"
-                    , th "Posted"
-                    , th "Link"
-                    ]
-                ]
-            , Html.tbody []
-                (List.indexedMap (postRow timePosix) (PC.filterPosts postsConfig posts))
-            ]
-        ]
-
-
-th : String -> Html msg
-th label =
-    Html.th
-        [ Html.Attributes.style "padding" "10px"
-        , Html.Attributes.style "text-align" "left"
-        , Html.Attributes.style "font-weight" "600"
-        , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
-        ]
-        [ Html.text label ]
-
-
-postRow : Time.Posix -> Int -> Post -> Html Msg
-postRow now index post =
-    Html.tr
-        [ Html.Attributes.style "background" (if modBy 2 index == 0 then "#ffffff" else "#f0f4f8")
-        ]
-        [ td (String.fromInt post.score)
-        , td post.title
-        , td post.type_
-        , td
-            (Util.Time.formatTime Time.utc post.time
-                ++ " ("
-                ++ Maybe.withDefault "Just now"
-                    (Maybe.map Util.Time.formatDuration (Util.Time.durationBetween post.time now))
-                ++ ")"
+            [ Html.thead [ Html.Attributes.style "background" "#d9e2ec" ]
+              [ Html.tr []
+                  [ Html.th [ Html.Attributes.style "padding" "10px"
+                  , Html.Attributes.style "text-align" "left"
+                  , Html.Attributes.style "font-weight" "600"
+                  , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
+                  ] [ Html.text "Score" ]
+                  , Html.th [ Html.Attributes.style "padding" "10px"
+                    , Html.Attributes.style "text-align" "left"
+                    , Html.Attributes.style "font-weight" "600"
+                    , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
+                    ] [ Html.text "Title" ]
+                  , Html.th [ Html.Attributes.style "padding" "10px"
+                    , Html.Attributes.style "text-align" "left"
+                    , Html.Attributes.style "font-weight" "600"
+                    , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
+                    ] [ Html.text "Type" ]
+                  , Html.th [ Html.Attributes.style "padding" "10px"
+                    , Html.Attributes.style "text-align" "left"
+                    , Html.Attributes.style "font-weight" "600"
+                    , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
+                    ] [ Html.text "Posted date" ]
+                  , Html.th [ Html.Attributes.style "padding" "10px"
+                    , Html.Attributes.style "text-align" "left"
+                    , Html.Attributes.style "font-weight" "600"
+                    , Html.Attributes.style "border-bottom" "2px solid #bcccdc"
+                    ] [ Html.text "Link" ]
+                  ]
+              ],
+            Html.tbody []
+            (List.indexedMap
+                (\index post ->
+                    Html.tr [ Html.Attributes.style "background" (if modBy 2 index == 0 then "#ffffff" else "#f0f4f8") ]
+                        [ Html.td [ class "post-score" ] [ Html.text (String.fromInt post.score) ]
+                        , Html.td [ class "post-title" ] [ Html.text post.title ]
+                        , Html.td [ class "post-type" ] [ Html.text post.type_ ]
+                        , Html.td [ class "post-time" ]
+                            [Html.text
+                                ( Util.Time.formatTime Time.utc post.time
+                                    ++ " ("
+                                    ++ (Maybe.withDefault "Just now"
+                                        (Maybe.map
+                                            Util.Time.formatDuration
+                                            (Util.Time.durationBetween post.time timePosix)
+                                        )
+                                       )
+                                    ++ ")"
+                                )
+                            ]
+                        , Html.td [ class "post-url", Html.Attributes.style "padding" "8px", Html.Attributes.style "color" "#1a73e8"]
+                            [ Html.a
+                                [ Html.Attributes.href (Maybe.withDefault "" post.url)
+                                , Html.Attributes.target "_blank"
+                                ]
+                                [ Html.text (Maybe.withDefault "" post.url) ]
+                            ]
+                        ]
+                )
+                (PC.filterPosts postsConfig posts)
             )
-        , Html.td
-            [ Html.Attributes.style "padding" "8px"
-            , Html.Attributes.style "color" "#1a73e8"
-            ]
-            [ Html.a
-                [ Html.Attributes.href (Maybe.withDefault "" post.url)
-                , Html.Attributes.target "_blank"
-                ]
-                [ Html.text (Maybe.withDefault "" post.url) ]
             ]
         ]
-
-
-td : String -> Html msg
-td content =
-    Html.td
-        [ Html.Attributes.style "padding" "8px"
-        , Html.Attributes.style "border-bottom" "1px solid #d9e2ec"
-        ]
-        [ Html.text content ]
-
-
 
 {-| Show the configuration options for the posts table
 
@@ -119,106 +117,59 @@ Relevant functions:
   - [Html.Attributes.selected](https://package.elm-lang.org/packages/elm/html/latest/Html-Attributes#selected)
   - [Html.Events.onCheck](https://package.elm-lang.org/packages/elm/html/latest/Html-Events#onCheck)
   - [Html.Events.onInput](https://package.elm-lang.org/packages/elm/html/latest/Html-Events#onInput)
-
 -}
 postsConfigView : PostsConfig -> Html Msg
 postsConfigView postsConfig =
     div
-        [ Html.Attributes.style "padding" "20px"
-        , Html.Attributes.style "background" "#e8eef3"
-        , Html.Attributes.style "border-radius" "8px"
-        , Html.Attributes.style "margin-bottom" "20px"
-        , Html.Attributes.style "font-family" "sans-serif"
+    [Html.Attributes.style "padding" "20px"
+    , Html.Attributes.style "background" "#e8eef3"
+    , Html.Attributes.style "border-radius" "8px"
+    , Html.Attributes.style "margin-bottom" "20px"
+    , Html.Attributes.style "font-family" "sans-serif"]
+    [
+        Html.label [] [ Html.text "Posts to show: " ],
+        Html.select
+        [id "select-posts-per-page",
+         Html.Attributes.style "padding" "6px",
+         Html.Attributes.style "border-radius" "6px",
+         Html.Attributes.name "Posts to show",
+         Html.Events.onInput (\value -> ConfigChanged (Change PostsToShow (IntValue (String.toInt value |> Maybe.withDefault postsConfig.postsToShow))))
         ]
-        [ configRow
-            [ textLabel "Posts to show:"
-            , Html.select
-                [ Html.Attributes.style "padding" "6px"
-                , Html.Attributes.style "border-radius" "6px"
-                , Html.Events.onInput
-                    (\value ->
-                        ConfigChanged
-                            (Change PostsToShow
-                                (IntValue (String.toInt value |> Maybe.withDefault postsConfig.postsToShow))
-                            )
-                    )
-                ]
-                [ option "10" postsConfig.postsToShow
-                , option "25" postsConfig.postsToShow
-                , option "50" postsConfig.postsToShow
-                ]
-            ]
-        , configRow
-            [ textLabel "Sort by:"
-            , Html.select
-                [ Html.Attributes.style "padding" "6px"
-                , Html.Attributes.style "border-radius" "6px"
-                , Html.Events.onInput
-                    (\value ->
-                        ConfigChanged
-                            (Change SortByField
-                                (SortValue (PC.sortFromString value |> Maybe.withDefault postsConfig.sortBy))
-                            )
-                    )
-                ]
-                [ optionFixed "None"
-                , optionFixed "Score"
-                , optionFixed "Title"
-                , optionFixed "Posted"
-                ]
-            ]
-        , checkbox "Show job posts"
-            postsConfig.showJobs
-            (\v -> ConfigChanged (Change ShowJobs (BoolValue v)))
-        , checkbox "Show text only posts"
-            postsConfig.showTextOnly
-            (\v -> ConfigChanged (Change ShowTextOnly (BoolValue v)))
+        [
+            Html.option [ Html.Attributes.value "10", Html.Attributes.selected True ] [Html.text "10"],
+            Html.option [ Html.Attributes.value "25", Html.Attributes.selected False ] [Html.text "25"],
+            Html.option [ Html.Attributes.value "50", Html.Attributes.selected False ] [Html.text "50"]
+        ],
+        Html.label [] [ Html.text "Sort by: " ],
+        Html.select
+        [id "select-sort-by",
+         Html.Attributes.name "Sort by",
+         Html.Events.onInput (\value -> ConfigChanged (Change SortByField (SortValue (PC.sortFromString value |> Maybe.withDefault postsConfig.sortBy))))
         ]
-
-
-configRow : List (Html msg) -> Html msg
-configRow elements =
-    div
-        [ Html.Attributes.style "margin-bottom" "12px"
-        , Html.Attributes.style "display" "flex"
-        , Html.Attributes.style "gap" "12px"
-        , Html.Attributes.style "align-items" "center"
-        ]
-        elements
-
-
-textLabel : String -> Html msg
-textLabel txt =
-    Html.label
-        [ Html.Attributes.style "font-weight" "600" ]
-        [ Html.text txt ]
-
-
-option : String -> Int -> Html msg
-option value current =
-    Html.option
-        [ Html.Attributes.value value
-        , Html.Attributes.selected (String.toInt value == Just current)
-        ]
-        [ Html.text value ]
-
-
-optionFixed : String -> Html msg
-optionFixed s =
-    Html.option [ Html.Attributes.value s ] [ Html.text s ]
-
-
-checkbox : String -> Bool -> (Bool -> msg) -> Html msg
-checkbox txt checked handler =
-    div
-        [ Html.Attributes.style "margin-bottom" "8px" ]
-        [ Html.label []
+        [
+            Html.option [ Html.Attributes.selected True, Html.Attributes.value "None" ] [Html.text "None"],
+            Html.option [ Html.Attributes.value "Score" ] [Html.text "Score"],
+            Html.option [ Html.Attributes.value "Title" ] [Html.text "Title"],
+            Html.option [ Html.Attributes.value "Posted" ] [Html.text "Posted"]
+        ],
+        Html.label []
             [ Html.input
                 [ Html.Attributes.type_ "checkbox"
-                , Html.Attributes.checked checked
-                , Html.Events.onCheck handler
+                , Html.Attributes.checked postsConfig.showJobs
+                , Html.Attributes.id "checkbox-show-job-posts"
+                , Html.Events.onCheck (\value -> ConfigChanged (Change ShowJobs (BoolValue value)))
                 ]
                 []
-            , Html.text (" " ++ txt)
+            , Html.text " Show job posts"
+            ],
+        Html.label []
+            [ Html.input
+                [ Html.Attributes.type_ "checkbox"
+                , Html.Attributes.checked postsConfig.showTextOnly
+                , Html.Attributes.id "checkbox-show-text-only-posts"
+                , Html.Events.onCheck (\value -> ConfigChanged (Change ShowTextOnly (BoolValue value)))
+                ]
+                []
+            , Html.text "Show text only posts"
             ]
-        ]
+    ]
